@@ -76,26 +76,31 @@ namespace SnAdminPowerShellProvider
             if(segments.Length == 1)
             {
                 var webName = segments[0];
-                var packageNames = FindPackages(webName);
-                foreach (var packageName in packageNames)
-                    WriteItemObject(packageName, $"{path}\\{packageName}", false);
+                var packages = FindPackages(webName);
+                foreach (var package in packages)
+                    WriteItemObject(package, $"{path}\\{package.Name}", false);
                 return;
             }
             WriteItemObject("not implemented", path, true);
         }
 
         private static string[] PackageBlacklist = new[] { "bin", "run", "tools" };
-        private string[] FindPackages(string webName)
+        private Package[] FindPackages(string webName)
         {
-            var path = SnWebs[webName];
+            ?var path = SnWebs[webName];
             var adminPath = $"{path}\\Admin";
             var toolsPath = $"{path}\\Admin\\tools";
-            var packages = System.IO.Directory.GetDirectories(adminPath)
+
+            var packageNames = System.IO.Directory.GetDirectories(adminPath)
                 .Select(System.IO.Path.GetFileName)
-                .Except(PackageBlacklist, StringComparer.OrdinalIgnoreCase)
-                .Union(System.IO.Directory.GetDirectories(toolsPath).Select(System.IO.Path.GetFileName))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Except(PackageBlacklist, StringComparer.OrdinalIgnoreCase);
+            var toolNames = System.IO.Directory.GetDirectories(toolsPath)
+                .Select(System.IO.Path.GetFileName)
+                .Except(packageNames);
+            var packages = packageNames.Select(n=>Package.Create(path, n))
+                .Union(toolNames.Select(n => Package.Create(path, $"tools\\{n}")))
                 .ToArray();
+
             return packages;
         }
         private bool IsPackageExist(string webName, string packageName)

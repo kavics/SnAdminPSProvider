@@ -35,37 +35,29 @@
     <View>
       <Name>QuestionView</Name>
       <ViewSelectedBy>
-        <TypeName>StackExchange.StacMan.Question</TypeName>
+        <TypeName>SnAdminPowerShellProvider.Package</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
-            <Label>Title</Label>
-            <Width>70</Width>
-            <Alignment>left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Creator</Label>
+            <Label>Name</Label>
             <Width>20</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Reputation</Label>
-            <Width>10</Width>
-            <Alignment>Right</Alignment>
+            <Label>Description</Label>
+            <Width>60</Width>
+            <Alignment>left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <PropertyName>Title</PropertyName>
+                <PropertyName>Name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.Owner.DisplayName</ScriptBlock>
-              </TableColumnItem>
-              <TableColumnItem>
-                <ScriptBlock>$_.Owner.Reputation</ScriptBlock>
+                <PropertyName>Description</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
