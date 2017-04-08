@@ -45,6 +45,16 @@
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Label>Repo</Label>
+            <Width>4</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Phases</Label>
+            <Width>6</Width>
+            <Alignment>right</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>Description</Label>
             <Width>60</Width>
             <Alignment>left</Alignment>
@@ -55,6 +65,13 @@
             <TableColumnItems>
               <TableColumnItem>
                 <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <!--<ScriptBlock>$_.UsesRepo ? "yes" : "no"</ScriptBlock>-->
+                <PropertyName>UsesRepo</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PhaseCount</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Description</PropertyName>

@@ -87,7 +87,7 @@ namespace SnAdminPowerShellProvider
         private static string[] PackageBlacklist = new[] { "bin", "run", "tools" };
         private Package[] FindPackages(string webName)
         {
-            ?var path = SnWebs[webName];
+            var path = SnWebs[webName];
             var adminPath = $"{path}\\Admin";
             var toolsPath = $"{path}\\Admin\\tools";
 
