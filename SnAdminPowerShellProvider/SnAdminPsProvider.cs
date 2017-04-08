@@ -69,8 +69,7 @@ namespace SnAdminPowerShellProvider
             if (string.IsNullOrEmpty(path))
             {
                 foreach (var item in SnWebs)
-                    //WriteItemObject(System.IO.Path.GetFileName(item.Key), item.Value, true);
-                    WriteItemObject(item.Key, item.Key, true);
+                    WriteItemObject(new WebFolder { Name = item.Key, Path = item.Value }, item.Key, true);
                 return;
             }
             var segments = path.Split('\\');

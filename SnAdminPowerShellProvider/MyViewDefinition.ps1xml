@@ -3,18 +3,18 @@
     <View>
       <Name>MyView</Name>
       <ViewSelectedBy>
-        <TypeName>StackOverflowAPI.Tag</TypeName>
+        <TypeName>SnAdminPowerShellProvider.WebFolder</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
             <Label>Name</Label>
-            <Width>25</Width>
+            <Width>20</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Count</Label>
-            <Width>10</Width>
+            <Label>Path</Label>
+            <Width>60</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -25,7 +25,7 @@
                 <PropertyName>Name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>Count</PropertyName>
+                <PropertyName>Path</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

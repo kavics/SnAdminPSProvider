@@ -48,6 +48,7 @@
     <Compile Include="SetSnWebCmdlet.cs" />
     <Compile Include="SnAdminPsProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebFolder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="InstallProvider.ps1">
