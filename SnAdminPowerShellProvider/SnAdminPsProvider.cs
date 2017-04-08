@@ -42,15 +42,13 @@ namespace SnAdminPowerShellProvider
             if (path == "")
                 return true;
 
+            path = path.TrimEnd('\\');
+
             var segments = path.Split('\\');
             if (segments.Length == 1)
-            {
                 return SnWebs.ContainsKey(segments[0].ToLowerInvariant());
-            }
             if (segments.Length == 2)
-            {
                 return IsPackageExist(segments[0].ToLowerInvariant(), segments[1]);
-            }
             return false;
         }
         protected override void GetItem(string path)
@@ -66,6 +64,8 @@ namespace SnAdminPowerShellProvider
 
         protected override void GetChildItems(string path, bool recurse)
         {
+            path = path.TrimEnd('\\');
+
             if (string.IsNullOrEmpty(path))
             {
                 foreach (var item in SnWebs)
@@ -105,6 +105,9 @@ namespace SnAdminPowerShellProvider
         }
         private bool IsPackageExist(string webName, string packageName)
         {
+            if (string.IsNullOrEmpty(packageName))
+                return false;
+
             if (PackageBlacklist.Contains(packageName, StringComparer.OrdinalIgnoreCase))
                 return false;
 
