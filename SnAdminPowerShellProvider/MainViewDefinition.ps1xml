@@ -14,7 +14,7 @@
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Path</Label>
-            <Width>60</Width>
+            <Width>80</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -35,7 +35,7 @@
     <View>
       <Name>QuestionView</Name>
       <ViewSelectedBy>
-        <TypeName>SnAdminPowerShellProvider.Package</TypeName>
+        <TypeName>SnAdminPowerShellProvider.Views.Package</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
@@ -56,7 +56,7 @@
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Description</Label>
-            <Width>60</Width>
+            <Width>80</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
         </TableHeaders>

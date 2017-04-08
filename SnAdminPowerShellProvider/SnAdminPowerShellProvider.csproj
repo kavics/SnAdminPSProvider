@@ -50,16 +50,18 @@
     <Compile Include="SetSnWebCmdlet.cs" />
     <Compile Include="SnAdminPsProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Views\IView.cs" />
+    <Compile Include="Views\Package.cs" />
     <Compile Include="WebFolder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="InstallProvider.ps1">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="MyPowerShellProvider.psd1">
+    <None Include="SnSdminPowerShellProvider.psd1">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="MyViewDefinition.ps1xml">
+    <None Include="MainViewDefinition.ps1xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

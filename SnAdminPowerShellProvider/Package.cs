@@ -12,7 +12,7 @@ namespace SnAdminPowerShellProvider
         public string Description { get; set; }
         public string LocalPath { get; set; }
         public int PhaseCount { get; set; }
-        public string UsesRepo { get; set; }
+        public bool UsesRepo { get; set; }
         public bool IsValid { get; set; }
         public bool IsCompressed { get; set; }
 
@@ -35,7 +35,22 @@ namespace SnAdminPowerShellProvider
                 Version = manifest.Version,
                 Description = manifest.Desription,
                 PhaseCount = manifest.PhaseCount,
-                UsesRepo = manifest.UsesRepo ? "yes" : "no"
+                UsesRepo = manifest.UsesRepo
+            };
+        }
+
+        public Views.Package GetView()
+        {
+            return new Views.Package
+            {
+                Name = this.Name,
+                Version = this.Version,
+                Description = IsCompressed ? "(compressed)" : (IsValid ? this.Description : "(invalid package)"),
+                LocalPath = this.LocalPath,
+                PhaseCount = this.PhaseCount,
+                UsesRepo = this.UsesRepo ? "yes" : "no",
+                IsValid = this.IsValid,
+                IsCompressed = this.IsCompressed
             };
         }
     }

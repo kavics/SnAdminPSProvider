@@ -78,7 +78,7 @@ namespace SnAdminPowerShellProvider
                 var webName = segments[0];
                 var packages = FindPackages(webName);
                 foreach (var package in packages)
-                    WriteItemObject(package, $"{path}\\{package.Name}", false);
+                    WriteItemObject(package.GetView(), $"{path}\\{package.Name}", false);
                 return;
             }
             WriteItemObject("not implemented", path, true);

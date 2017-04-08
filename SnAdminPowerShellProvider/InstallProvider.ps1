@@ -1,1 +1,1 @@
-﻿Import-Module .\MyPowerShellProvider.psd1
+﻿Import-Module .\SnSdminPowerShellProvider.psd1

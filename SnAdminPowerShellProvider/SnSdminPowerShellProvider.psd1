@@ -19,6 +19,6 @@ CompanyName = ''
 Copyright = 'See the license file for this repo.'
 
 
-FormatsToProcess = @("MyViewDefinition.ps1xml")
+FormatsToProcess = @("MainViewDefinition.ps1xml")
 
 }
