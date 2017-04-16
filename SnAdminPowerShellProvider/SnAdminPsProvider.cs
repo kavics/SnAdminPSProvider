@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.PowerShell.Commands;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -81,6 +82,7 @@ namespace SnAdminPowerShellProvider
                     WriteItemObject(package.GetView(), $"{path}\\{package.Name}", false);
                 return;
             }
+            
             WriteItemObject("not implemented", path, true);
         }
 
@@ -138,10 +140,15 @@ namespace SnAdminPowerShellProvider
             base.MoveItem(path, destination);
         }
 
-
-        protected override void GetChildNames(string path, ReturnContainers returnContainers)
+        protected override void InvokeDefaultAction(string path)
         {
-            base.GetChildNames(path, returnContainers);
+            var exePath = @"C:\Windows\System32\notepad.exe";
+            var argString = @"D:\git-cheat-sheet.txt";
+            var p = System.Diagnostics.Process.Start(exePath, argString);
+        }
+
+        private void Invoke()
+        {
         }
     }
 }
