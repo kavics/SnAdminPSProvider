@@ -13,13 +13,13 @@
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Name</Label>
-            <Width>50</Width>
+            <Label>Type</Label>
+            <Width>30</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Type</Label>
-            <Width>40</Width>
+            <Label>Name</Label>
+            <Width>80</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -30,10 +30,10 @@
                 <PropertyName>Id</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>Name</PropertyName>
+                <PropertyName>Type</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>Type</PropertyName>
+                <PropertyName>Name</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

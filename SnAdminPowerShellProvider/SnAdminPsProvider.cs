@@ -42,21 +42,21 @@ namespace SnAdminPowerShellProvider
         private string _currentContentPath;
         protected override bool ItemExists(string path)
         {
-            return true;
+            return true; //TODO: Eliminates performance problems but not-existent item can be current..
 
-            path = path.TrimEnd('\\', '/');
-            if (path == "")
-                return true;
+            //path = path.TrimEnd('\\', '/');
+            //if (path == "")
+            //    return true;
 
-            path = path.Replace('\\', '/');
-            if (!path.StartsWith("/"))
-                path = "/" + path;
-            if (!path.StartsWith("/root", StringComparison.OrdinalIgnoreCase))
-                return false;
+            //path = path.Replace('\\', '/');
+            //if (!path.StartsWith("/"))
+            //    path = "/" + path;
+            //if (!path.StartsWith("/root", StringComparison.OrdinalIgnoreCase))
+            //    return false;
 
-            if (path == _currentContentPath)
-                return true;
-            return SnWeb.Exists(path);
+            //if (path == _currentContentPath)
+            //    return true;
+            //return SnWeb.Exists(path);
         }
         protected override void GetItem(string path)
         {
@@ -75,7 +75,17 @@ namespace SnAdminPowerShellProvider
             path = path.TrimEnd('/');
             if (!path.StartsWith("/"))
                 path = "/" + path;
-            if (!path.StartsWith("/root", StringComparison.OrdinalIgnoreCase))
+
+            if (path == "/") // drive root (parent of /Root)
+            {
+                var content = SnWeb.GetChildren(null).First();
+                _currentContentPath = content.Path;
+                WriteItemObject(new ContentHead(content), content.Path, true);
+                _currentContentPath = null;
+                return;
+            }
+
+            if (!path.StartsWith("/Root", StringComparison.OrdinalIgnoreCase))
             {
                 WriteItemObject($"Invalid path: '{path}'", path, true);
                 return;
@@ -90,12 +100,31 @@ namespace SnAdminPowerShellProvider
             //WriteItemObject("not implemented", path, true);
         }
 
-        //protected override string[] ExpandPath(string path)
-        //{
-        //    return SnWebs.Keys.ToArray();
-        //    return base.ExpandPath(path);
-        //    //return TagsFromPath(path);
-        //}
+        protected override string[] ExpandPath(string path)
+        {
+            //var x = SenseNet.Client.RepositoryPath.GetParentPath(path);
+            var segments = path.Split('\\', '/');
+            if (segments.Length == 1)
+                return new[] { "Root" };
+
+            string namePrefix;
+            var namePattern = segments.Last();
+            if (namePattern.EndsWith("*"))
+                namePrefix = namePattern.TrimEnd('*');
+            else
+                throw new NotSupportedException();
+
+            var snPath = "/" + string.Join("/", segments.Take(segments.Length - 1).ToArray());
+
+            var result = SnWeb.GetChildren(snPath)
+                .Where(c => c.Name.StartsWith(namePrefix, StringComparison.OrdinalIgnoreCase))
+                .Select(c => c.Name)
+                .OrderBy(s => s)
+                .Select(s => string.Join("/", segments.Take(segments.Length - 1).ToArray()) + "\\" + s)
+                .ToArray();
+
+            return result;
+        }
 
         protected override void CopyItem(string path, string copyPath, bool recurse)
         {
