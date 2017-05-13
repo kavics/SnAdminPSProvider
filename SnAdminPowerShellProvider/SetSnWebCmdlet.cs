@@ -28,17 +28,7 @@ namespace SnAdminPowerShellProvider
 
         private void CheckSnWeb(string path)
         {
-            if(!Directory.Exists(path))
-                throw new DirectoryNotFoundException("Location is not found.");
-
-            var webconfig = File.Exists(Path.Combine(path, "web.config"));
-            var appData = Directory.Exists(Path.Combine(path, "app_data"));
-            var snAdminExe = File.Exists(Path.Combine(path, "admin/bin/snadmin.exe"));
-
-            if (!(File.Exists(Path.Combine(path, "web.config"))
-                && Directory.Exists(Path.Combine(path, "app_data"))
-                && File.Exists(Path.Combine(path, "admin/bin/snadmin.exe"))))
-                throw new ArgumentException("Location is not a valid Sense/Net web directory");
+            throw new DirectoryNotFoundException("Location is not found.");
         }
     }
 

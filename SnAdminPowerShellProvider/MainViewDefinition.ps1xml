@@ -1,6 +1,46 @@
 ﻿<Configuration>
   <ViewDefinitions>
     <View>
+      <Name>ContentHead</Name>
+      <ViewSelectedBy>
+        <TypeName>SnAdminPowerShellProvider.Views.ContentHead</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Id</Label>
+            <Width>10</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Width>50</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Width>40</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Id</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Type</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
       <Name>MyView</Name>
       <ViewSelectedBy>
         <TypeName>SnAdminPowerShellProvider.WebFolder</TypeName>
@@ -33,7 +73,7 @@
       </TableControl>
     </View>
     <View>
-      <Name>QuestionView</Name>
+      <Name>MyView2</Name>
       <ViewSelectedBy>
         <TypeName>SnAdminPowerShellProvider.Views.Package</TypeName>
       </ViewSelectedBy>

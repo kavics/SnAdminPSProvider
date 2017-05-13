@@ -1,4 +1,5 @@
 ﻿using Microsoft.PowerShell.Commands;
+using SnAdminPowerShellProvider.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,11 +17,11 @@ namespace SnAdminPowerShellProvider
     {
         private static Dictionary<string, string> SnWebs { get; } = new Dictionary<string, string>()
         {
-            { "snweb1", @"D:\Dev10\web\site1" },
-            { "snweb2", @"D:\Dev10\web\site2" },
-            { "snweb3", @"D:\Dev10\web\site3" }
-        }
-        ;
+            { "SnDemo", @"https://demo.sensenet.com" }
+        };
+
+        private static SnWeb SnWeb => new SnWeb(SnWebs["SnDemo"]);
+
         public static void AddSnDrive(string name, string path)
         {
             SnWebs[name.ToLowerInvariant()] = path;
@@ -33,24 +34,29 @@ namespace SnAdminPowerShellProvider
 
         protected override Collection<PSDriveInfo> InitializeDefaultDrives()
         {
-            PSDriveInfo drive = new PSDriveInfo("SnAdmin", this.ProviderInfo, "", "", null);
+            PSDriveInfo drive = new PSDriveInfo("SnDemo", this.ProviderInfo, "", "", null);
             Collection<PSDriveInfo> drives = new Collection<PSDriveInfo>() { drive };
             return drives;
         }
 
+        private string _currentContentPath;
         protected override bool ItemExists(string path)
         {
+            return true;
+
+            path = path.TrimEnd('\\', '/');
             if (path == "")
                 return true;
 
-            path = path.TrimEnd('\\');
+            path = path.Replace('\\', '/');
+            if (!path.StartsWith("/"))
+                path = "/" + path;
+            if (!path.StartsWith("/root", StringComparison.OrdinalIgnoreCase))
+                return false;
 
-            var segments = path.Split('\\');
-            if (segments.Length == 1)
-                return SnWebs.ContainsKey(segments[0].ToLowerInvariant());
-            if (segments.Length == 2)
-                return IsPackageExist(segments[0].ToLowerInvariant(), segments[1]);
-            return false;
+            if (path == _currentContentPath)
+                return true;
+            return SnWeb.Exists(path);
         }
         protected override void GetItem(string path)
         {
@@ -65,71 +71,31 @@ namespace SnAdminPowerShellProvider
 
         protected override void GetChildItems(string path, bool recurse)
         {
-            path = path.TrimEnd('\\');
-
-            if (string.IsNullOrEmpty(path))
+            path = path.Replace('\\', '/');
+            path = path.TrimEnd('/');
+            if (!path.StartsWith("/"))
+                path = "/" + path;
+            if (!path.StartsWith("/root", StringComparison.OrdinalIgnoreCase))
             {
-                foreach (var item in SnWebs)
-                    WriteItemObject(new WebFolder { Name = item.Key, Path = item.Value }, item.Key, true);
+                WriteItemObject($"Invalid path: '{path}'", path, true);
                 return;
             }
-            var segments = path.Split('\\');
-            if(segments.Length == 1)
+
+            foreach (var content in SnWeb.GetChildren(path))
             {
-                var webName = segments[0];
-                var packages = FindPackages(webName);
-                foreach (var package in packages)
-                    WriteItemObject(package.GetView(), $"{path}\\{package.Name}", false);
-                return;
+                _currentContentPath = content.Path;
+                WriteItemObject(new ContentHead(content), content.Path, true);
+                _currentContentPath = null;
             }
-            
-            WriteItemObject("not implemented", path, true);
+            //WriteItemObject("not implemented", path, true);
         }
 
-        private static string[] PackageBlacklist = new[] { "bin", "run", "tools" };
-        private Package[] FindPackages(string webName)
-        {
-            var path = SnWebs[webName];
-            var adminPath = $"{path}\\Admin";
-            var toolsPath = $"{path}\\Admin\\tools";
-
-            var packageNames = System.IO.Directory.GetDirectories(adminPath)
-                .Select(System.IO.Path.GetFileName)
-                .Except(PackageBlacklist, StringComparer.OrdinalIgnoreCase);
-            var toolNames = System.IO.Directory.GetDirectories(toolsPath)
-                .Select(System.IO.Path.GetFileName)
-                .Except(packageNames);
-            var packages = packageNames.Select(n=>Package.Create(path, n))
-                .Union(toolNames.Select(n => Package.Create(path, $"tools\\{n}")))
-                .ToArray();
-
-            return packages;
-        }
-        private bool IsPackageExist(string webName, string packageName)
-        {
-            if (string.IsNullOrEmpty(packageName))
-                return false;
-
-            if (PackageBlacklist.Contains(packageName, StringComparer.OrdinalIgnoreCase))
-                return false;
-
-            var path = SnWebs[webName];
-            var pkgPath = $"{path}\\Admin\\{packageName}";
-            if (System.IO.Directory.Exists(pkgPath))
-                return true;
-
-            pkgPath = $"{path}\\Admin\\tools\\{packageName}";
-            return System.IO.Directory.Exists(pkgPath);
-        }
-
-        protected override string[] ExpandPath(string path)
-        {
-            return SnWebs.Keys.ToArray();
-
-            return base.ExpandPath(path);
-
-            //return TagsFromPath(path);
-        }
+        //protected override string[] ExpandPath(string path)
+        //{
+        //    return SnWebs.Keys.ToArray();
+        //    return base.ExpandPath(path);
+        //    //return TagsFromPath(path);
+        //}
 
         protected override void CopyItem(string path, string copyPath, bool recurse)
         {
@@ -140,15 +106,5 @@ namespace SnAdminPowerShellProvider
             base.MoveItem(path, destination);
         }
 
-        protected override void InvokeDefaultAction(string path)
-        {
-            var exePath = @"C:\Windows\System32\notepad.exe";
-            var argString = @"D:\git-cheat-sheet.txt";
-            var p = System.Diagnostics.Process.Start(exePath, argString);
-        }
-
-        private void Invoke()
-        {
-        }
     }
 }
