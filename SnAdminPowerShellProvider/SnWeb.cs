@@ -2,28 +2,14 @@
 using SenseNet.Client;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Management.Automation;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SnAdminPowerShellProvider
 {
-    internal class SnContent
-    {
-        public Content Content { get; private set; }
-        public int Id { get { return Content.Id; } }
-        public int ParentId { get { return Content.ParentId; } }
-        public string Name { get { return Content.Name; } }
-        public string Path { get { return Content.Path; } }
-        public string Type { get; private set; }
-
-        public SnContent(Content clientContent)
-        {
-            this.Content = clientContent;
-            this.Type = (clientContent["Type"] as JValue)?.Value as string;
-        }
-    }
-
     internal class SnWeb
     {
         static SnWeb()
@@ -70,7 +56,18 @@ namespace SnAdminPowerShellProvider
             return content != null;
         }
 
-        internal Content GetContent(string snPathOrNullOrEmpty)
+        //internal Content GetContent(string snPathOrNullOrEmpty)
+        //{
+        //    string snPath = snPathOrNullOrEmpty;
+        //    if (string.IsNullOrEmpty(snPath))
+        //        snPath = "/Root";
+
+        //    if (!snPath.StartsWith("/root", StringComparison.OrdinalIgnoreCase))
+        //        throw new ArgumentException($"Invalid path: '{snPathOrNullOrEmpty}'");
+
+        //    return Content.LoadAsync(GetRequest(snPath), _server).Result;
+        //}
+        internal PSObject GetContent(string snPathOrNullOrEmpty)
         {
             string snPath = snPathOrNullOrEmpty;
             if (string.IsNullOrEmpty(snPath))
@@ -79,7 +76,32 @@ namespace SnAdminPowerShellProvider
             if (!snPath.StartsWith("/root", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException($"Invalid path: '{snPathOrNullOrEmpty}'");
 
-            return Content.LoadAsync(GetRequest(snPath), _server).Result;
+            var x = (JObject)RESTCaller.GetResponseJsonAsync(GetRequest(snPath), _server).Result;
+            var y = (JObject)x.Children().First().Children().First();
+
+            var props = new PropertyDescriptorCollection(y.Properties().Select(p => new JPropertyDescriptor(p.Name)).ToArray());
+
+            //var z = new PSObject(new SnContent(x));
+            //return new SnContent(x);
+
+            var psObject = new PSObject();
+            foreach(var item in y.Properties())
+            {
+                var member = new PSNoteProperty(item.Name, GetValue(item.Value));
+                psObject.Properties.Add(member);
+            }
+
+            return psObject;
+        }
+        private object GetValue(object input)
+        {
+            var jValue = input as JValue;
+            if (jValue != null)
+                return jValue.Value;
+            var jArray = input as JArray;
+            if (jArray != null)
+                return string.Join(", ", jArray.Select(i => i.ToString()).ToArray());
+            return input;
         }
 
         private ODataRequest GetHeadRequest(string path)
@@ -88,6 +110,8 @@ namespace SnAdminPowerShellProvider
             req.Select = new[] { "Id", "ParentId", "Name", "Path", "Type" };
             return req;
         }
+
+
         private ODataRequest GetRequest(string path, MetadataFormat meta = MetadataFormat.None)
         {
             var req = new ODataRequest

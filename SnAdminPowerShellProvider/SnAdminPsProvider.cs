@@ -1,4 +1,5 @@
 ﻿using Microsoft.PowerShell.Commands;
+using Newtonsoft.Json.Linq;
 using SnAdminPowerShellProvider.Views;
 using System;
 using System.Collections.Generic;
@@ -66,9 +67,10 @@ namespace SnAdminPowerShellProvider
         protected override void GetItem(string path)
         {
             //UNDONE: need to write all fields.
+            //dynamic content = SnWeb.GetContent(SnPath(path));
             var content = SnWeb.GetContent(SnPath(path));
-            WriteItemObject(content, content.Path, true);
-            WritePropertyObject("asdf", path);
+
+            WriteItemObject(content, path, true);
             _currentContentPath = null;
         }
 
@@ -107,15 +109,6 @@ namespace SnAdminPowerShellProvider
                 .ToArray();
 
             return result;
-        }
-
-        protected override void CopyItem(string path, string copyPath, bool recurse)
-        {
-            base.CopyItem(path, copyPath, recurse);
-        }
-        protected override void MoveItem(string path, string destination)
-        {
-            base.MoveItem(path, destination);
         }
 
         /* =================================================================================*/
