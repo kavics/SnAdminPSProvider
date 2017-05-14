@@ -70,13 +70,30 @@ namespace SnAdminPowerShellProvider
             return content != null;
         }
 
+        internal Content GetContent(string snPathOrNullOrEmpty)
+        {
+            string snPath = snPathOrNullOrEmpty;
+            if (string.IsNullOrEmpty(snPath))
+                snPath = "/Root";
+
+            if (!snPath.StartsWith("/root", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"Invalid path: '{snPathOrNullOrEmpty}'");
+
+            return Content.LoadAsync(GetRequest(snPath), _server).Result;
+        }
+
         private ODataRequest GetHeadRequest(string path)
+        {
+            var req = GetRequest(path, MetadataFormat.None);
+            req.Select = new[] { "Id", "ParentId", "Name", "Path", "Type" };
+            return req;
+        }
+        private ODataRequest GetRequest(string path, MetadataFormat meta = MetadataFormat.None)
         {
             var req = new ODataRequest
             {
                 SiteUrl = _server.Url,
-                Select = new[] { "Id", "ParentId", "Name", "Path", "Type" },
-                Metadata = MetadataFormat.None,
+                Metadata = meta,
             };
 
             if (path != null)

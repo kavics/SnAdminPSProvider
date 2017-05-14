@@ -58,46 +58,29 @@ namespace SnAdminPowerShellProvider
             //    return true;
             //return SnWeb.Exists(path);
         }
-        protected override void GetItem(string path)
-        {
-            // only on the first level
-            WriteItemObject(path, path, true);
-        }
-
         protected override bool IsItemContainer(string path)
         {
             return true;
         }
 
+        protected override void GetItem(string path)
+        {
+            //UNDONE: need to write all fields.
+            var content = SnWeb.GetContent(SnPath(path));
+            WriteItemObject(content, content.Path, true);
+            WritePropertyObject("asdf", path);
+            _currentContentPath = null;
+        }
+
         protected override void GetChildItems(string path, bool recurse)
         {
-            path = path.Replace('\\', '/');
-            path = path.TrimEnd('/');
-            if (!path.StartsWith("/"))
-                path = "/" + path;
-
-            if (path == "/") // drive root (parent of /Root)
-            {
-                var content = SnWeb.GetChildren(null).First();
-                _currentContentPath = content.Path;
-                WriteItemObject(new ContentHead(content), content.Path, true);
-                _currentContentPath = null;
-                return;
-            }
-
-            if (!path.StartsWith("/Root", StringComparison.OrdinalIgnoreCase))
-            {
-                WriteItemObject($"Invalid path: '{path}'", path, true);
-                return;
-            }
-
-            foreach (var content in SnWeb.GetChildren(path))
+            foreach (var content in SnWeb.GetChildren(SnPath(path)))
             {
                 _currentContentPath = content.Path;
                 WriteItemObject(new ContentHead(content), content.Path, true);
                 _currentContentPath = null;
             }
-            //WriteItemObject("not implemented", path, true);
+            return;
         }
 
         protected override string[] ExpandPath(string path)
@@ -135,5 +118,22 @@ namespace SnAdminPowerShellProvider
             base.MoveItem(path, destination);
         }
 
+        /* =================================================================================*/
+
+        public static string SnPath(string path)
+        {
+            var snPath = path.Replace('\\', '/');
+            snPath = snPath.TrimEnd('/');
+            if (!snPath.StartsWith("/"))
+                snPath = "/" + snPath;
+
+            if (snPath == "/") // drive root (parent of /Root)
+                return null;
+
+            if (snPath.StartsWith("/Root", StringComparison.OrdinalIgnoreCase))
+                return snPath;
+
+            throw new ApplicationException($"Invalid path: '{path}'");
+        }
     }
 }
