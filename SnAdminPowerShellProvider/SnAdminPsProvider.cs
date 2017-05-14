@@ -78,8 +78,8 @@ namespace SnAdminPowerShellProvider
         {
             foreach (var content in SnWeb.GetChildren(SnPath(path)))
             {
-                _currentContentPath = content.Path;
-                WriteItemObject(new ContentHead(content), content.Path, true);
+                _currentContentPath = (string)content.Properties["Path"].Value;
+                WriteItemObject(new ContentHead(content), _currentContentPath, true);
                 _currentContentPath = null;
             }
             return;
@@ -102,8 +102,8 @@ namespace SnAdminPowerShellProvider
             var snPath = "/" + string.Join("/", segments.Take(segments.Length - 1).ToArray());
 
             var result = SnWeb.GetChildren(snPath)
-                .Where(c => c.Name.StartsWith(namePrefix, StringComparison.OrdinalIgnoreCase))
-                .Select(c => c.Name)
+                .Select(c => (string)c.Properties["Name"].Value)
+                .Where(s => s.StartsWith(namePrefix, StringComparison.OrdinalIgnoreCase))
                 .OrderBy(s => s)
                 .Select(s => string.Join("/", segments.Take(segments.Length - 1).ToArray()) + "\\" + s)
                 .ToArray();

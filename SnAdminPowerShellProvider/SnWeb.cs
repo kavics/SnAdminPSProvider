@@ -24,21 +24,28 @@ namespace SnAdminPowerShellProvider
             _server = new ServerContext { Url = url, Username = "admin", Password = "admin" };
         }
 
-        public IEnumerable<SnContent> GetChildren(string snPathOrNullOrEmpty)
+        public IEnumerable<PSObject> GetChildren(string snPathOrNullOrEmpty)
         {
             if (string.IsNullOrEmpty(snPathOrNullOrEmpty))
             {
-                var root = Content.LoadAsync(GetHeadRequest("/Root"), _server).Result;
-                return new[] { new SnContent(root) };
+                var root = GetContent(null); // Content.LoadAsync(GetHeadRequest("/Root"), _server).Result;
+                return new[] { root };
             }
 
             if (!snPathOrNullOrEmpty.StartsWith("/root", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException($"Invalid path: '{snPathOrNullOrEmpty}'");
 
-            var list = Content.LoadCollectionAsync(GetHeadRequest(snPathOrNullOrEmpty), _server).Result
-                .Select(c => new SnContent(c))
-                .ToArray();
-            return list;
+            //var list = Content.LoadCollectionAsync(GetHeadRequest(snPathOrNullOrEmpty), _server).Result
+            //    .Select(c => new SnContent(c))
+            //    .ToArray();
+            //return list;
+
+            var responseJson = (JObject)RESTCaller.GetResponseJsonAsync(GetRequest(snPathOrNullOrEmpty, true), _server).Result;
+            var container = (JObject)responseJson.Children().First().Children().First();
+            var jContents = (JArray)container["results"];
+            var contents = jContents.Select(c => GetPsObject((JObject)c)).ToArray();
+
+            return contents;
         }
 
         internal bool Exists(string snPath)
@@ -56,17 +63,6 @@ namespace SnAdminPowerShellProvider
             return content != null;
         }
 
-        //internal Content GetContent(string snPathOrNullOrEmpty)
-        //{
-        //    string snPath = snPathOrNullOrEmpty;
-        //    if (string.IsNullOrEmpty(snPath))
-        //        snPath = "/Root";
-
-        //    if (!snPath.StartsWith("/root", StringComparison.OrdinalIgnoreCase))
-        //        throw new ArgumentException($"Invalid path: '{snPathOrNullOrEmpty}'");
-
-        //    return Content.LoadAsync(GetRequest(snPath), _server).Result;
-        //}
         internal PSObject GetContent(string snPathOrNullOrEmpty)
         {
             string snPath = snPathOrNullOrEmpty;
@@ -76,21 +72,19 @@ namespace SnAdminPowerShellProvider
             if (!snPath.StartsWith("/root", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException($"Invalid path: '{snPathOrNullOrEmpty}'");
 
-            var x = (JObject)RESTCaller.GetResponseJsonAsync(GetRequest(snPath), _server).Result;
-            var y = (JObject)x.Children().First().Children().First();
+            var responseJson = (JObject)RESTCaller.GetResponseJsonAsync(GetRequest(snPath), _server).Result;
+            var contentJson = (JObject)responseJson.Children().First().Children().First();
+            return GetPsObject(contentJson);
+        }
 
-            var props = new PropertyDescriptorCollection(y.Properties().Select(p => new JPropertyDescriptor(p.Name)).ToArray());
-
-            //var z = new PSObject(new SnContent(x));
-            //return new SnContent(x);
-
+        private PSObject GetPsObject(JObject jObject)
+        {
             var psObject = new PSObject();
-            foreach(var item in y.Properties())
+            foreach (var item in jObject.Properties())
             {
                 var member = new PSNoteProperty(item.Name, GetValue(item.Value));
                 psObject.Properties.Add(member);
             }
-
             return psObject;
         }
         private object GetValue(object input)
@@ -106,17 +100,16 @@ namespace SnAdminPowerShellProvider
 
         private ODataRequest GetHeadRequest(string path)
         {
-            var req = GetRequest(path, MetadataFormat.None);
+            var req = GetRequest(path, false, MetadataFormat.None);
             req.Select = new[] { "Id", "ParentId", "Name", "Path", "Type" };
             return req;
         }
-
-
-        private ODataRequest GetRequest(string path, MetadataFormat meta = MetadataFormat.None)
+        private ODataRequest GetRequest(string path, bool isCollection = false, MetadataFormat meta = MetadataFormat.None)
         {
             var req = new ODataRequest
             {
                 SiteUrl = _server.Url,
+                IsCollectionRequest = isCollection,
                 Metadata = meta,
             };
 
